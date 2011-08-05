@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension key="org.civicrm.payment.ogone" type="payment">
-  <downloadUrl>https://github.com/cray146/CiviCRM-Ogone-Payment-Processor/blob/master/org.civicrm.payment.ogone.zip</downloadUrl>
+  <downloadUrl>https://github.com/downloads/cray146/CiviCRM-Ogone-Payment-Processor/org.civicrm.payment.ogone.zip</downloadUrl>
   <file>Ogone</file>
   <name>Ogone</name>
   <description>Ogone Payment Processor</description>
