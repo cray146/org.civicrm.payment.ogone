@@ -8,8 +8,11 @@ require_once 'CRM/Utils/Request.php';
 
 $config = CRM_Core_Config::singleton();
 
-// Change this to fit your processor name.
-require_once 'OgoneIPN.php';
+require_once 'CRM/Core/Extensions/Extension.php';
+$ext = new CRM_Core_Extensions_Extension( 'org.civicrm.payment.ogone' );
+if ( !empty( $ext->path ) ) {
+    require_once $ext->path . '/OgoneIPN.php';
+}
 
 static $store = null;
 $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $store, false, null, 'GET');
