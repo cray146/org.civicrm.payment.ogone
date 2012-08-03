@@ -115,9 +115,6 @@ class CRM_Core_Payment_OgoneIPN extends CRM_Core_Payment_BaseIPN {
     }
     */
 
-    // lets replace invoice_id with Ogone PAYID (transaction reference).
-    $contribution->invoice_id = $input['newInvoice'];
-
     $input['amount'] = $amount;
 
     if ( $contribution->total_amount != $input['amount'] ) {
