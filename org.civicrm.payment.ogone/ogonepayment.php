@@ -169,7 +169,7 @@ class com_webaccessglobal_ogone extends CRM_Core_Payment {
       $OgoneParams['ownertelno'] = $params['phone'];
     }
 
-    $notifyURL = $config->userFrameworkResourceURL . "ipn?payment_processor=Ogone";
+    $notifyURL = CRM_Utils_System::url('civicrm/payment/ipn', "processor_name=Ogone", false, null, false);
     $notifyURL .= "?qfKey=" . $params['qfKey'];
     $OgoneParams['accepturl'] = $notifyURL;
     $OgoneParams['declineurl'] = $notifyURL;

@@ -1,8 +1,5 @@
 To install the extension:
-
-* follow the instruction to install the extension: http://wiki.civicrm.org/confluence/display/CRMDOC40/Extensions+Admin
-* make a symbolic link in <civicrm root>/packages/OgoneUtils.php to OgoneUtils.php
-* make a symbolic link in <civicrm root>/extern/OgoneNotify.php to OgoneNotify.php
+*notify URL : http://example.com/civicrm/civicrm/payment/ipn?processor_name=Ogone
 
 To configure the Ogone payment processor:
 
