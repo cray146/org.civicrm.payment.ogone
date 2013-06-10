@@ -31,14 +31,16 @@ function ogone_civicrm_install() {
  */
 function ogone_civicrm_uninstall() {
 
-  CRM_Core_DAO::executeQuery("DELETE  FROM civicrm_payment_processor where payment_processor_type = 'Ogone'");
+$ogonID = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_PaymentProcessorType', 'name', 'id', 'Ogone');
+if($ogonID){
+  CRM_Core_DAO::executeQuery("DELETE  FROM civicrm_payment_processor where payment_processor_type_id =". $ogonID);
   $affectedRows = mysql_affected_rows();
 
   if($affectedRows)
     CRM_Core_Session::setStatus("Ogone Payment Processor Message:
     <br />Entries for Ogone Payment Processor are now Deleted!
     <br />");
-
+}
   return _ogone_civix_civicrm_uninstall();
 }
 
@@ -47,14 +49,16 @@ function ogone_civicrm_uninstall() {
  */
 function ogone_civicrm_enable() {
 
- CRM_Core_DAO::executeQuery("UPDATE civicrm_payment_processor SET is_active = 1 where payment_processor_type = 'Ogone'");
+$ogonID = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_PaymentProcessorType', 'name', 'id', 'Ogone');
+if($ogonID){
+ CRM_Core_DAO::executeQuery("UPDATE civicrm_payment_processor SET is_active = 1 where payment_processor_type_id =".$ogonID);
   $affectedRows = mysql_affected_rows();
 
   if($affectedRows)
     CRM_Core_Session::setStatus("Ogone Payment Processor Message:
     <br />Entries for Ogone Payment Processor are now Enabled!
     <br />");
-
+}
   return _ogone_civix_civicrm_enable();
 }
 
@@ -62,15 +66,17 @@ function ogone_civicrm_enable() {
  * Implementation of hook_civicrm_disable
  */
 function ogone_civicrm_disable() {
-
- CRM_Core_DAO::executeQuery("UPDATE civicrm_payment_processor SET is_active = 0 where payment_processor_type = 'Ogone'");
+$ogonID = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_PaymentProcessorType', 'name', 'id', 'Ogone');
+CRM_Core_Error::debug('$ogonID' , $ogonID);
+if($ogonID){
+ CRM_Core_DAO::executeQuery("UPDATE civicrm_payment_processor SET is_active = 0 where payment_processor_type_id =".$ogonID);
   $affectedRows = mysql_affected_rows();
 
   if($affectedRows)
     CRM_Core_Session::setStatus("Ogone Payment Processor Message:
     <br />Entries for Ogone Payment Processor are now Disabled!
     <br />");
-
+}
   return _ogone_civix_civicrm_disable();
 }
 
@@ -105,7 +111,7 @@ $entities[] = array(
       'description' => 'Ogone Payment Processor',
       'class_name' => 'org.civicrm.payment.ogone',
       'billing_mode' => 'notify',
-      'user_name_label' => 'PSPID';
+      'user_name_label' => 'PSPID',
       'password_label' => 'SHA1-IN Passphrase',
       'signature_label' => 'SHA1-OUT Passphrase',
       'subject_label' => 'Merchant ID',
