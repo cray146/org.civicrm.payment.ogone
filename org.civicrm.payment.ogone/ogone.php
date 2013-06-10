@@ -31,16 +31,16 @@ function ogone_civicrm_install() {
  */
 function ogone_civicrm_uninstall() {
 
-$ogonID = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_PaymentProcessorType', 'name', 'id', 'Ogone');
-if($ogonID){
-  CRM_Core_DAO::executeQuery("DELETE  FROM civicrm_payment_processor where payment_processor_type_id =". $ogonID);
-  $affectedRows = mysql_affected_rows();
+  $ogonID = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_PaymentProcessorType', 'name', 'id', 'Ogone');
+  if ($ogonID) {
+    CRM_Core_DAO::executeQuery("DELETE  FROM civicrm_payment_processor where payment_processor_type_id =" . $ogonID);
+    $affectedRows = mysql_affected_rows();
 
-  if($affectedRows)
-    CRM_Core_Session::setStatus("Ogone Payment Processor Message:
+    if ($affectedRows)
+      CRM_Core_Session::setStatus("Ogone Payment Processor Message:
     <br />Entries for Ogone Payment Processor are now Deleted!
     <br />");
-}
+  }
   return _ogone_civix_civicrm_uninstall();
 }
 
@@ -49,16 +49,16 @@ if($ogonID){
  */
 function ogone_civicrm_enable() {
 
-$ogonID = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_PaymentProcessorType', 'name', 'id', 'Ogone');
-if($ogonID){
- CRM_Core_DAO::executeQuery("UPDATE civicrm_payment_processor SET is_active = 1 where payment_processor_type_id =".$ogonID);
-  $affectedRows = mysql_affected_rows();
+  $ogonID = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_PaymentProcessorType', 'name', 'id', 'Ogone');
+  if ($ogonID) {
+    CRM_Core_DAO::executeQuery("UPDATE civicrm_payment_processor SET is_active = 1 where payment_processor_type_id =" . $ogonID);
+    $affectedRows = mysql_affected_rows();
 
-  if($affectedRows)
-    CRM_Core_Session::setStatus("Ogone Payment Processor Message:
+    if ($affectedRows)
+      CRM_Core_Session::setStatus("Ogone Payment Processor Message:
     <br />Entries for Ogone Payment Processor are now Enabled!
     <br />");
-}
+  }
   return _ogone_civix_civicrm_enable();
 }
 
@@ -66,17 +66,17 @@ if($ogonID){
  * Implementation of hook_civicrm_disable
  */
 function ogone_civicrm_disable() {
-$ogonID = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_PaymentProcessorType', 'name', 'id', 'Ogone');
-CRM_Core_Error::debug('$ogonID' , $ogonID);
-if($ogonID){
- CRM_Core_DAO::executeQuery("UPDATE civicrm_payment_processor SET is_active = 0 where payment_processor_type_id =".$ogonID);
-  $affectedRows = mysql_affected_rows();
+  $ogonID = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_PaymentProcessorType', 'name', 'id', 'Ogone');
+  CRM_Core_Error::debug('$ogonID', $ogonID);
+  if ($ogonID) {
+    CRM_Core_DAO::executeQuery("UPDATE civicrm_payment_processor SET is_active = 0 where payment_processor_type_id =" . $ogonID);
+    $affectedRows = mysql_affected_rows();
 
-  if($affectedRows)
-    CRM_Core_Session::setStatus("Ogone Payment Processor Message:
+    if ($affectedRows)
+      CRM_Core_Session::setStatus("Ogone Payment Processor Message:
     <br />Entries for Ogone Payment Processor are now Disabled!
     <br />");
-}
+  }
   return _ogone_civix_civicrm_disable();
 }
 
@@ -100,7 +100,7 @@ function ogone_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
  * is installed, disabled, uninstalled.
  */
 function ogone_civicrm_managed(&$entities) {
-$entities[] = array(
+  $entities[] = array(
     'module' => 'org.civicrm.payment.ogone',
     'name' => 'Ogone',
     'entity' => 'PaymentProcessorType',

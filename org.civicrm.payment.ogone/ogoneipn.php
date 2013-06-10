@@ -1,5 +1,7 @@
 <?php
+
 require_once 'OgoneUtils.php';
+
 class ogoneipn extends CRM_Core_Payment_BaseIPN {
 
   /**
@@ -72,12 +74,12 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
    * notification or request sent by the payment processor.
    * hex string from paymentexpress is passed to this function as hex string.
    */
-  static function main($qfKey){
+  static function main($qfKey) {
     $config = CRM_Core_Config::singleton();
 
     unset($ogoneParams['qfKey']);
     $ogoneParams = array();
-    foreach($_GET as $param => $val) {
+    foreach ($_GET as $param => $val) {
       $ogoneParams[$param] = $val;
     }
     $shaSign = $ogoneParams['SHASIGN'];
@@ -112,7 +114,7 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
     // Process the transaction.
     if ($duplicateTransaction == 0) {
       // Process the transaction.
-      $ipn=& self::singleton($mode, $component, $paymentProcessor);
+      $ipn = & self::singleton($mode, $component, $paymentProcessor);
       $ipn->newOrderNotify($ogoneParams['STATUS'], $privateData, $component, $ogoneParams['amount'], $ogoneParams['PAYID']);
     }
 
@@ -123,10 +125,12 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
 
       if ($component == "event") {
         $finalURL = CRM_Utils_System::url('civicrm/event/confirm', "reset=1&cc=fail&participantId={$privateData['participantID']}", false, null, false);
-      } elseif ($component == "contribute") {
+      }
+      elseif ($component == "contribute") {
         $finalURL = CRM_Utils_System::url('civicrm/contribute/transact', "_qf_Main_display=1&cancel=1&qfKey={$qfKey}", false, null, false);
       }
-    } else {
+    }
+    else {
       if ($component == "event") {
         $finalURL = CRM_Utils_System::url('civicrm/event/register', "_qf_ThankYou_display=1&qfKey={$qfKey}", false, null, false);
       }
@@ -134,9 +138,8 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
         $finalURL = CRM_Utils_System::url('civicrm/contribute/transact', "_qf_ThankYou_display=1&qfKey={$qfKey}", false, null, false);
       }
     }
-    CRM_Utils_System::redirect( $finalURL );
+    CRM_Utils_System::redirect($finalURL);
   }
-
 
   function &error($errorCode = null, $errorMessage = null) {
     $e = & CRM_Core_Error::singleton();
@@ -168,11 +171,12 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
     $ids['contact'] = self::retrieve('contactID', 'Integer', $privateData, true);
     $ids['contribution'] = self::retrieve('contributionID', 'Integer', $privateData, true);
 
-    if ( $input['component'] == "event" ) {
+    if ($input['component'] == "event") {
       $ids['event'] = self::retrieve('eventID', 'Integer', $privateData, true);
       $ids['participant'] = self::retrieve('participantID', 'Integer', $privateData, true);
-      $ids['membership']  = null;
-    } else {
+      $ids['membership'] = null;
+    }
+    else {
       $ids['membership'] = self::retrieve('membershipID', 'Integer', $privateData, false);
       $ids['related_contact'] = self::retrieve('relatedContactID', 'Integer', $privateData, false);
       $ids['onbehalf_dupe_alert'] = self::retrieve('onBehalfDupeAlert', 'Integer', $privateData, false);
@@ -180,7 +184,7 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
     $ids['contributionRecur'] = $ids['contributionPage'] = null;
 
     // unset ids with value null in order to let validateData succeed
-    foreach($ids as $key => $value) {
+    foreach ($ids as $key => $value) {
       if ($value == null) {
         unset($ids[$key]);
       }
@@ -196,8 +200,8 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
     // NOTE: took this out since invoiceID is not passed in privateData.
     // $input['invoice'] = $privateData['invoiceID'];
     $input['newInvoice'] = $transactionReference;
-    $contribution =& $objects['contribution'];
-    $input['trxn_id'] =	$transactionReference;
+    $contribution = & $objects['contribution'];
+    $input['trxn_id'] = $transactionReference;
 
     // NOTE: took this out since invoiceID is not passed in privateData.
     /*
@@ -206,24 +210,24 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
       echo "Failure: Invoice values dont match between database and IPN request<p>";
       return;
       }
-    */
+     */
 
     // lets replace invoice_id with Ogone PAYID (transaction reference).
     $contribution->invoice_id = $input['newInvoice'];
 
     $input['amount'] = $amount;
 
-    if ( $contribution->total_amount != $input['amount'] ) {
-      CRM_Core_Error::debug_log_message( "Amount values dont match between database and IPN request" );
-      echo "Failure: Amount values dont match between database and IPN request. ".$contribution->total_amount."/".$input['amount']."<p>";
+    if ($contribution->total_amount != $input['amount']) {
+      CRM_Core_Error::debug_log_message("Amount values dont match between database and IPN request");
+      echo "Failure: Amount values dont match between database and IPN request. " . $contribution->total_amount . "/" . $input['amount'] . "<p>";
       return;
     }
 
     $transaction = new CRM_Core_Transaction( );
 
     // check if contribution is already completed, if so we ignore this ipn
-    if ( $contribution->contribution_status_id == 1 ) {
-      CRM_Core_Error::debug_log_message( "Returning since contribution has already been handled" );
+    if ($contribution->contribution_status_id == 1) {
+      CRM_Core_Error::debug_log_message("Returning since contribution has already been handled");
       echo "Success: Contribution has already been handled<p>";
       return true;
     }
@@ -234,17 +238,21 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
     if ($status == '0' || $status == '2') {
       // Order is incomplete or invalid (status=0) or authorization refused (status=2)
       return $this->failed($objects, $transaction);
-    } elseif ($status == '1') {
+    }
+    elseif ($status == '1') {
       // Order is cancelled (status=1)
       return $this->cancelled($objects, $transaction);
-    } elseif ($status == '52' || $status == '92') {
+    }
+    elseif ($status == '52' || $status == '92') {
       // Order authorization not known (status=52) or payment uncertain (status=92)
       return $this->pending($objects, $transaction);
-    } else {
-      $this->completeTransaction ($input, $ids, $objects, $transaction);
+    }
+    else {
+      $this->completeTransaction($input, $ids, $objects, $transaction);
       return true;
     }
   }
+
   /**
    * The function returns the component(Event/Contribute..)and whether it is Test or not
    *
@@ -253,7 +261,7 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
    * @return array context of this call (test, component, payment processor id)
    * @static
    */
-  static function getContext($privateData){
+  static function getContext($privateData) {
 
     $component = null;
     $isTest = null;
@@ -323,6 +331,7 @@ class ogoneipn extends CRM_Core_Payment_BaseIPN {
 
     return array($isTest, $component, $paymentProcessorID, $duplicateTransaction);
   }
+
 }
 
 ?>

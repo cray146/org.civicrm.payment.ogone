@@ -1,5 +1,7 @@
 <?php
+
 require_once 'OgoneUtils.php';
+
 class com_webaccessglobal_ogone extends CRM_Core_Payment {
 
   static protected $_mode = null;
@@ -38,7 +40,7 @@ class com_webaccessglobal_ogone extends CRM_Core_Payment {
     $config = CRM_Core_Config::singleton();
     $error = array();
 
-   if (empty($this->_paymentProcessor['user_name'])) {
+    if (empty($this->_paymentProcessor['user_name'])) {
       $error[] = ts('The "PSPID" is not set in the Administer CiviCRM Payment Processor.');
     }
 
@@ -61,7 +63,7 @@ class com_webaccessglobal_ogone extends CRM_Core_Payment {
    * @return array the result in a nice formatted array (or an error object)
    * @public
    */
-  function doTransferCheckout(&$params, $component){
+  function doTransferCheckout(&$params, $component) {
     $config = CRM_Core_Config::singleton();
 
     if ($component != 'contribute' && $component != 'event') {
@@ -123,7 +125,7 @@ class com_webaccessglobal_ogone extends CRM_Core_Payment {
       $params['contributionTypeID'],
       $params['eventID'],
       $params['participantID'],
-      //      $params['membershipId'],
+        //      $params['membershipId'],
     );
     $membershipID = CRM_Utils_Array::value('membershipID', $params);
     if ($membershipID) {
@@ -140,11 +142,12 @@ class com_webaccessglobal_ogone extends CRM_Core_Payment {
     }
 
     $OgoneParams['orderID'] = implode('-', $orderID);
-    $OgoneParams['amount'] = sprintf("%d", (float)$params['amount'] * 100);
+    $OgoneParams['amount'] = sprintf("%d", (float) $params['amount'] * 100);
     $OgoneParams['currency'] = 'EUR';
     if (isset($params['preferred_language'])) {
       $OgoneParams['language'] = $params['preferred_language'];
-    } else {
+    }
+    else {
       $OgoneParams['language'] = 'nl_NL';
     }
     if (isset($params['first_name']) || isset($params['last_name'])) {
@@ -180,7 +183,6 @@ class com_webaccessglobal_ogone extends CRM_Core_Payment {
     $OgoneParams['SHASign'] = $shaSign;
 
     //CRM_Core_Error::debug_var('OgoneParams', $OgoneParams);
-
     // Allow further manipulation of the arguments via custom hooks ..
     CRM_Utils_Hook::alterPaymentProcessorParams($this, $params, $OgoneParams);
 
@@ -197,7 +199,6 @@ class com_webaccessglobal_ogone extends CRM_Core_Payment {
     CRM_Utils_System::redirect($this->_paymentProcessor['url_site'] . '?' . $query_string);
 
     exit();
-
   }
 
   /**
