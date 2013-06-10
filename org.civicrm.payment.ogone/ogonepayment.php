@@ -1,9 +1,10 @@
 <?php
-
-require_once 'CRM/Core/Payment.php';
 require_once 'OgoneUtils.php';
+class com_webaccessglobal_ogone extends CRM_Core_Payment {
 
-class org_civicrm_payment_ogone extends CRM_Core_Payment {
+  static protected $_mode = null;
+  static protected $_params = array();
+
   /**
    * We only need one instance of this object. So we use the singleton
    * pattern and cache the instance in this variable
@@ -14,41 +15,17 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
   static private $_singleton = null;
 
   /**
-   * mode of operation: live or test
-   *
-   * @var object
-   * @static
-   */
-  static protected $_mode = null;
-
-  /**
    * Constructor
    *
    * @param string $mode the mode of operation: live or test
    *
    * @return void
    */
-  function __construct( $mode, &$paymentProcessor ) {
+  function __construct($mode, &$paymentProcessor) {
+
     $this->_mode = $mode;
     $this->_paymentProcessor = $paymentProcessor;
     $this->_processorName = ts('Ogone');
-  }
-
-  /**
-   * singleton function used to manage this object
-   *
-   * @param string $mode the mode of operation: live or test
-   *
-   * @return object
-   * @static
-   *
-   */
-  static function &singleton( $mode, &$paymentProcessor ) {
-    $processorName = $paymentProcessor['name'];
-    if (self::$_singleton[$processorName] === null ) {
-      self::$_singleton[$processorName] = new org_civicrm_payment_ogone($mode, $paymentProcessor);
-    }
-    return self::$_singleton[$processorName];
   }
 
   /**
@@ -57,17 +34,19 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
    * @return string the error message if any
    * @public
    */
-  function checkConfig( ) {
+  function checkConfig() {
     $config = CRM_Core_Config::singleton();
     $error = array();
-    if (empty($this->_paymentProcessor['user_name'])) {
+
+   if (empty($this->_paymentProcessor['user_name'])) {
       $error[] = ts('The "PSPID" is not set in the Administer CiviCRM Payment Processor.');
     }
 
     if (!empty($error)) {
       return implode('<p>', $error);
-    } else {
-      return NULL;
+    }
+    else {
+      return null;
     }
   }
 
@@ -76,15 +55,13 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
   }
 
   /**
-   * Sets appropriate parameters for checking out to Ogone
+   * Submit an Automated Recurring Billing subscription
    *
-   * @param array $params  name value pair of contribution datat
-   *
-   * @return void
-   * @access public
-   *
+   * @param  array $params assoc array of input parameters for this transaction
+   * @return array the result in a nice formatted array (or an error object)
+   * @public
    */
-  function doTransferCheckout(&$params, $component) {
+  function doTransferCheckout(&$params, $component){
     $config = CRM_Core_Config::singleton();
 
     if ($component != 'contribute' && $component != 'event') {
@@ -121,10 +98,10 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
 
     $OgoneParams['PSPID'] = $this->_paymentProcessor['user_name'];
     //TODO: from Ogone tech spec
-    //  Although our system can accept up to 30 characters, the norm for most acquirers is 10 or 12. 
+    //  Although our system can accept up to 30 characters, the norm for most acquirers is 10 or 12.
     //  The exact accepted length and data validation format depend on the acquirer/bank.
     //  If the orderID does not comply to the ref2 rules set by the acquirer, we’ll send our PAYID as ref2 to the acquirer instead.
-    //  Avoid using spaces or special characters in the orderID. 
+    //  Avoid using spaces or special characters in the orderID.
     //
     //  We need to encode following values in orderID to allow further processing in OgoneIPN.php
     //    getContext() in OgoneIPN.php
@@ -136,17 +113,17 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
     //      eventID
     //      participantID
     //      membershipID
-    //      invoiceID - SKIP THIS AND MODIFY newOrderNotify() to ignore this. 
+    //      invoiceID - SKIP THIS AND MODIFY newOrderNotify() to ignore this.
     //        invoiceID is too long and causes Ogone orderid to exceed its maximum value of 30 chars.
     //
     $orderID = array(
-//      $params['invoiceID'],
+      //      $params['invoiceID'],
       $params['contactID'],
       $params['contributionID'],
       $params['contributionTypeID'],
       $params['eventID'],
       $params['participantID'],
-//      $params['membershipId'],
+      //      $params['membershipId'],
     );
     $membershipID = CRM_Utils_Array::value('membershipID', $params);
     if ($membershipID) {
@@ -155,7 +132,7 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
     $relatedContactID = CRM_Utils_Array::value('related_contact', $params);
     if ($relatedContactID) {
       $orderID[] = $relatedContactID;
-    
+
       $onBehalfDupeAlert = CRM_Utils_Array::value('on_behalf_dupe_alert', $params);
       if ($onBehalfDupeAlert) {
         $orderID[] = $onBehalfDupeAlert;
@@ -192,7 +169,7 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
       $OgoneParams['ownertelno'] = $params['phone'];
     }
 
-    $notifyURL = $config->userFrameworkResourceURL . "extern/OgoneNotify.php";
+    $notifyURL = $config->userFrameworkResourceURL . "ipn?payment_processor=Ogone";
     $notifyURL .= "?qfKey=" . $params['qfKey'];
     $OgoneParams['accepturl'] = $notifyURL;
     $OgoneParams['declineurl'] = $notifyURL;
@@ -202,8 +179,8 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
     $shaSign = calculateSHA1($OgoneParams, $this->_paymentProcessor['password']);
     $OgoneParams['SHASign'] = $shaSign;
 
-//CRM_Core_Error::debug_var('OgoneParams', $OgoneParams);
-    
+    //CRM_Core_Error::debug_var('OgoneParams', $OgoneParams);
+
     // Allow further manipulation of the arguments via custom hooks ..
     CRM_Utils_Hook::alterPaymentProcessorParams($this, $params, $OgoneParams);
 
@@ -222,6 +199,70 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
     exit();
 
   }
+
+  /**
+   * Get the value of a field if set
+   *
+   * @param string $field the field
+   * @return mixed value of the field, or empty string if the field is
+   * not set
+   */
+  function _getParam($field) {
+    return CRM_Utils_Array::value($field, $this->_params, '');
+  }
+
+  /**
+   * singleton function used to manage this object
+   *
+   * @param string $mode the mode of operation: live or test
+   *
+   * @return object
+   * @static
+   *
+   */
+  static function &singleton($mode, &$paymentProcessor) {
+    $processorName = $paymentProcessor['name'];
+    if (self::$_singleton[$processorName] === null) {
+      self::$_singleton[$processorName] = new com_webaccessglobal_ogone($mode, $paymentProcessor);
+    }
+    return self::$_singleton[$processorName];
+  }
+
+  function &error($errorCode = null, $errorMessage = null) {
+    $e = & CRM_Core_Error::singleton();
+    if ($errorCode) {
+      $e->push($errorCode, 0, null, $errorMessage);
+    }
+    else {
+      $e->push(9001, 0, null, 'Unknowns System Error.');
+    }
+    return $e;
+  }
+
+  /**
+   * Set a field to the specified value.  Value must be a scalar (int,
+   * float, string, or boolean)
+   *
+   * @param string $field
+   * @param mixed $value
+   * @return bool false if value is not a scalar, true if successful
+   */
+  function _setParam($field, $value) {
+    if (!is_scalar($value)) {
+      return false;
+    }
+    else {
+      $this->_params[$field] = $value;
+    }
+  }
+
+  /**
+   * Handle return response from payment processor
+   */
+  function handlePaymentNotification() {
+    require_once 'ogoneipn.php';
+    $ogoneIPN = new ogoneipn($this->_mode, $this->_paymentProcessor);
+    $ogoneIPN->main($_GET);
+  }
+
 }
-
-
