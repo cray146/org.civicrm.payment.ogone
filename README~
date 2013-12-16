@@ -17,10 +17,6 @@ To configure the Ogone payment processor:
 
 To configure the Ogone Merchant Account:
 
-1.- Login on Ogone with your merchant account and go to Your technical settings.
-2.- Go to tab Security and set Hash algorithm to SHA-1.
-3.- Go to tab Data and Origin. 
-  * Set up the URLs of the merchant page containing the payment form that will call the page orderstandard.asp. 
-  * Set up the SHA-IN passphrase.
-4.- Go to tab Transaction feedback.
-  * Set up SHA-Out passphrase.
+* Login on ogone with your merchant account and set up the url to call back "data & origin payment" to your
+http://example.org/civicrm/contribute/transact
+URL of the merchant page containing the payment for
