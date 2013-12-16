@@ -84,7 +84,7 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
    * @access public
    *
    */
-  function doTransferCheckout(&$params, $component) {
+  function doTransferCheckout($params, $component) {
     $config = CRM_Core_Config::singleton();
 
     if ($component != 'contribute' && $component != 'event') {
@@ -140,25 +140,14 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
     //        invoiceID is too long and causes Ogone orderid to exceed its maximum value of 30 chars.
     //
     $orderID = array(
-//      $params['invoiceID'],
       $params['contactID'],
       $params['contributionID'],
       $params['contributionTypeID'],
-      $params['eventID'],
-      $params['participantID'],
-//      $params['membershipId'],
     );
-    $membershipID = CRM_Utils_Array::value('membershipID', $params);
-    if ($membershipID) {
-      $orderID[] = $membershipID;
-    }
-    $relatedContactID = CRM_Utils_Array::value('related_contact', $params);
-    if ($relatedContactID) {
-      $orderID[] = $relatedContactID;
-    
-      $onBehalfDupeAlert = CRM_Utils_Array::value('on_behalf_dupe_alert', $params);
-      if ($onBehalfDupeAlert) {
-        $orderID[] = $onBehalfDupeAlert;
+    foreach (array('eventID','participantID','membershipId','related_contact','on_behalf_dupe_alert') as $k) {
+      $v = CRM_Utils_Array::value($k, $params);
+      if ($v) {
+        $orderID[] = $v;
       }
     }
 
@@ -168,7 +157,7 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
     if (isset($params['preferred_language'])) {
       $OgoneParams['language'] = $params['preferred_language'];
     } else {
-      $OgoneParams['language'] = 'nl_NL';
+      $OgoneParams['language'] = 'fr_FR';
     }
     if (isset($params['first_name']) || isset($params['last_name'])) {
       $OgoneParams['CN'] = $params['first_name'] . ' ' . $params['last_name'];
@@ -199,10 +188,21 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
     $OgoneParams['exceptionurl'] = $notifyURL;
     $OgoneParams['cancelurl'] = $notifyURL;
 
+    // ogone was failing with "unknown order/1/s/" due to non ascii7 char. This is an ugly workaround
+    foreach ($OgoneParams as &$str) {
+      $from = 'àáâãäçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝ';
+      $to   = 'aaaaaceeeeiiiinooooouuuuyyAAAAACEEEEIIIINOOOOOUUUUY';     
+      $keys = array();
+      $values = array();
+      preg_match_all('/./u', $from, $keys);
+      preg_match_all('/./u', $to, $values);
+      $mapping = array_combine($keys[0], $values[0]);
+      $str= strtr($str, $mapping);
+    }
     $shaSign = calculateSHA1($OgoneParams, $this->_paymentProcessor['password']);
     $OgoneParams['SHASign'] = $shaSign;
 
-//CRM_Core_Error::debug_var('OgoneParams', $OgoneParams);
+CRM_Core_Error::debug_var('OgoneParams', $OgoneParams);
     
     // Allow further manipulation of the arguments via custom hooks ..
     CRM_Utils_Hook::alterPaymentProcessorParams($this, $params, $OgoneParams);
