@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension key="org.civicrm.payment.ogone" type="payment">
+  <downloadUrl>https://github.com/cray146/CiviCRM-Ogone-Payment-Processor/zipball/master</downloadUrl>
+  <file>Ogone</file>
+  <name>Ogone</name>
+  <description>Ogone Payment Processor</description>
+  <urls>
+    <url desc="Main Extension Page"></url>
+    <url desc="Documentation"></url>
+    <url desc="Support"></url>
+    <url desc="Licensing"></url>
+  </urls>
+  <license>AGPL</license>
+  <maintainer>
+    <author>Chris Raymaekers</author>
+    <email>cray146@gmail.com</email>
+  </maintainer>
+  <releaseDate>2011-11-25</releaseDate>
+  <version>1.0</version>
+  <develStage>development</develStage>
+  <compatibility><ver>4.0</ver></compatibility>
+  <comments></comments>
+  <typeInfo>
+    <userNameLabel>PSPID</userNameLabel>
+    <passwordLabel>SHA1-IN Passphrase</passwordLabel>
+    <signatureLabel>SHA1-OUT Passphrase</signatureLabel>
+    <subjectLabel>Merchant ID</subjectLabel>
+    <urlSiteDefault>https://secure.ogone.com/ncol/prod/orderstandard.asp</urlSiteDefault>
+    <urlApiDefault></urlApiDefault>
+    <urlRecurDefault></urlRecurDefault>
+    <urlSiteTestDefault>https://secure.ogone.com/ncol/test/orderstandard.asp</urlSiteTestDefault>
+    <urlApiTestDefault></urlApiTestDefault>
+    <urlRecurTestDefault></urlRecurTestDefault>
+    <urlButtonDefault></urlButtonDefault>
+    <urlButtonTestDefault></urlButtonTestDefault>
+    <billingMode>notify</billingMode>
+    <isRecur>0</isRecur>
+    <paymentType>1</paymentType>
+  </typeInfo>
+</extension>                                                                                              

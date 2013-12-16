@@ -1,0 +1,13 @@
+To install the extension:
+
+* follow the instruction to install the extension: http://wiki.civicrm.org/confluence/display/CRMDOC40/Extensions+Admin
+* make a symbolic link in <civicrm root>/packages/OgoneUtils.php to OgoneUtils.php
+* make a symbolic link in <civicrm root>/extern/OgoneNotify.php to OgoneNotify.php
+
+To configure the Ogone payment processor:
+
+* go to Aminister > Configure > Global Settings > Payment Processors (http://example.com/civicrm/admin/paymentProcessor?reset=1) and click Add Payment Processor* fill out the New Payment Processor form. Select Ogone for Payment Processor Type
+
+login on ogone with your merchant account and set up the url to call back "data & origin payment" to your
+http://example.org/civicrm/contribute/transact
+URL of the merchant page containing the payment for
