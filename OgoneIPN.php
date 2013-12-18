@@ -167,7 +167,7 @@ class CRM_Core_Payment_OgoneIPN extends CRM_Core_Payment_BaseIPN {
   }
 
   /**
-   * The function returns the component(Event/Contribute..)and whether it is Test or not
+   * The function returns the component (Event/Contribute..) and whether it is Test or not
    *
    * @param array   $privateData    contains the name-value pairs of transaction related data
    *
@@ -207,7 +207,8 @@ class CRM_Core_Payment_OgoneIPN extends CRM_Core_Payment_BaseIPN {
 //        exit();
 
       // get the payment processor id from contribution page
-      $paymentProcessorID = CRM_Core_DAO::getFieldValue('CRM_Contribute_DAO_ContributionPage', $contribution->contribution_page_id, 'payment_processor_id');
+      //$paymentProcessorID = CRM_Core_DAO::getFieldValue('CRM_Contribute_DAO_ContributionPage', $contribution->contribution_page_id, 'payment_processor_id');
+      $paymentProcessorID = CRM_Core_DAO::getFieldValue('CRM_Contribute_DAO_ContributionPage', $contribution->contribution_page_id, 'payment_processor');
     }
     else {
       $eventID = $privateData['eventID'];
@@ -230,7 +231,8 @@ class CRM_Core_Payment_OgoneIPN extends CRM_Core_Payment_BaseIPN {
       }
 
       // get the payment processor id from contribution page
-      $paymentProcessorID = $event->payment_processor_id;
+      //$paymentProcessorID = $event->payment_processor_id;
+      $paymentProcessorID = $event->payment_processor;
     }
 
     if (!$paymentProcessorID) {
@@ -244,7 +246,7 @@ class CRM_Core_Payment_OgoneIPN extends CRM_Core_Payment_BaseIPN {
 
 
   /**
-   * This method is handles the response that will be invoked (from OgoneNotify.php) every time
+   * This method handles the response that will be invoked (from OgoneNotify.php) every time
    * a notification or request is sent by the Ogone Server.
    *
    */
@@ -253,7 +255,7 @@ class CRM_Core_Payment_OgoneIPN extends CRM_Core_Payment_BaseIPN {
     require_once 'CRM/Utils/Request.php';
     $config = CRM_Core_Config::singleton();
 
-    unset($ogoneParams['qfKey']);
+    //unset($ogoneParams['qfKey']);
     $ogoneParams = array();
     foreach($_GET as $param => $val) {
       $ogoneParams[$param] = $val;
@@ -273,20 +275,32 @@ class CRM_Core_Payment_OgoneIPN extends CRM_Core_Payment_BaseIPN {
     $privateData['eventID'] = (isset($order_array[3])) ? $order_array[3] : '';
     $privateData['participantID'] = (isset($order_array[4])) ? $order_array[4] : '';
     $privateData['membershipID'] = (isset($order_array[5])) ? $order_array[5] : '';
-    $privateData['relatedContactID'] = (isset($order_array[6])) ? $order_array[6] : '';
-    $privateData['onBehalfDupeAlert'] = (isset($order_array[7])) ? $order_array[7] : '';
+
+//CRM_Core_Error::debug_var('privateData', $privateData);
 
     list($mode, $component, $paymentProcessorID, $duplicateTransaction) = self::getContext($privateData);
     $mode = $mode ? 'test' : 'live';
+    $paymentProcessorID = intval($paymentProcessorID);
 
-    require_once 'CRM/Core/BAO/PaymentProcessor.php';
-    $paymentProcessor = CRM_core_BAO_PaymentProcessor::getPayment($paymentProcessorID, $mode);
+//CRM_Core_Error::debug_var('mode', $mode);
+//CRM_Core_Error::debug_var('component', $component);
+//CRM_Core_Error::debug_var('paymentProcessorID', $paymentProcessorID);
+//CRM_Core_Error::debug_var('duplicateTransaction', $duplicateTransaction);
+
+    //require_once 'CRM/Core/BAO/PaymentProcessor.php';
+    require_once 'CRM/Financial/BAO/PaymentProcessor.php';
+    //$paymentProcessor = CRM_Core_BAO_PaymentProcessor::getPayment($paymentProcessorID, $mode);
+    $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($paymentProcessorID, $mode);
+
+//CRM_Core_Error::debug_var('paymentProcessor', $paymentProcessor);
 
     $shaCalc = calculateSHA1($ogoneParams, $paymentProcessor['signature']); 
     if (strcmp($shaSign, $shaCalc)) {
       CRM_Core_Error::debug_log_message("Failure: SHA1-out signature does not match calculated value. Request parameters might be forged.");
       exit();
     }
+
+    CRM_Core_Error::debug_log_message("SHA1-out signature matches.");
 
     // Process the transaction.
     if ($duplicateTransaction == 0) {

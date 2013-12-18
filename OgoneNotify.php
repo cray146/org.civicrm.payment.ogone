@@ -8,6 +8,14 @@ require_once 'CRM/Utils/Request.php';
 
 $config = CRM_Core_Config::singleton();
 
+require_once 'OgoneIPN.php';
+
+static $store = null;
+$qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $store, false, null, 'GET');
+
+CRM_Core_Payment_OgoneIPN::main($qfKey);
+
+/*
 require_once 'CRM/Core/Extensions/Extension.php';
 $ext = new CRM_Core_Extensions_Extension( 'org.civicrm.payment.ogone' );
 if ( !empty( $ext->path ) ) {
@@ -19,3 +27,6 @@ $qfKey = CRM_Utils_Request::retrieve('qfKey', 'String', $store, false, null, 'GE
 
 // Change this to match your payment processor class.
 CRM_Core_Payment_OgoneIPN::main($qfKey);
+*/
+
+

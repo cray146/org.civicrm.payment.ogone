@@ -87,6 +87,9 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
   function doTransferCheckout($params, $component) {
     $config = CRM_Core_Config::singleton();
 
+CRM_Core_Error::debug_var('doTransferCheckOut - params', $params);
+CRM_Core_Error::debug_var('doTransferCheckOut - component', $component);
+
     if ($component != 'contribute' && $component != 'event') {
       CRM_Core_Error::fatal(ts('Component is invalid'));
     }
@@ -140,24 +143,20 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
     //        invoiceID is too long and causes Ogone orderid to exceed its maximum value of 30 chars.
     //
     $orderID = array(
-      $params['contactID'],
-      $params['contributionID'],
-      $params['contributionTypeID'],
+      CRM_Utils_Array::value('contactID', $params),
+      CRM_Utils_Array::value('contributionID', $params),
+      CRM_Utils_Array::value('contributionTypeID', $params),
+      CRM_Utils_Array::value('eventID', $params),
+      CRM_Utils_Array::value('participantID', $params),
+      CRM_Utils_Array::value('membershipID', $params)
     );
-    foreach (array('eventID','participantID','membershipId','related_contact','on_behalf_dupe_alert') as $k) {
-      $v = CRM_Utils_Array::value($k, $params);
-      if ($v) {
-        $orderID[] = $v;
-      }
-    }
-
     $OgoneParams['orderID'] = implode('-', $orderID);
     $OgoneParams['amount'] = sprintf("%d", (float)$params['amount'] * 100);
     $OgoneParams['currency'] = 'EUR';
     if (isset($params['preferred_language'])) {
       $OgoneParams['language'] = $params['preferred_language'];
     } else {
-      $OgoneParams['language'] = 'fr_FR';
+      $OgoneParams['language'] = 'nl_NL';
     }
     if (isset($params['first_name']) || isset($params['last_name'])) {
       $OgoneParams['CN'] = $params['first_name'] . ' ' . $params['last_name'];
@@ -202,7 +201,7 @@ class org_civicrm_payment_ogone extends CRM_Core_Payment {
     $shaSign = calculateSHA1($OgoneParams, $this->_paymentProcessor['password']);
     $OgoneParams['SHASign'] = $shaSign;
 
-CRM_Core_Error::debug_var('OgoneParams', $OgoneParams);
+//CRM_Core_Error::debug_var('doTransferCheckout - OgoneParams', $OgoneParams);
     
     // Allow further manipulation of the arguments via custom hooks ..
     CRM_Utils_Hook::alterPaymentProcessorParams($this, $params, $OgoneParams);
