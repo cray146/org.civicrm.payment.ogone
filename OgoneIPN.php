@@ -287,10 +287,11 @@ class CRM_Core_Payment_OgoneIPN extends CRM_Core_Payment_BaseIPN {
 //CRM_Core_Error::debug_var('paymentProcessorID', $paymentProcessorID);
 //CRM_Core_Error::debug_var('duplicateTransaction', $duplicateTransaction);
 
-    //require_once 'CRM/Core/BAO/PaymentProcessor.php';
-    require_once 'CRM/Financial/BAO/PaymentProcessor.php';
-    //$paymentProcessor = CRM_Core_BAO_PaymentProcessor::getPayment($paymentProcessorID, $mode);
-    $paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($paymentProcessorID, $mode);
+    require_once 'CRM/Core/BAO/PaymentProcessor.php';
+    $paymentProcessor = CRM_Core_BAO_PaymentProcessor::getPayment($paymentProcessorID, $mode);
+    // PaymentProcessor BAO is moved to CRM/Financial from CiviCRM 4.3 
+    //require_once 'CRM/Financial/BAO/PaymentProcessor.php';
+    //$paymentProcessor = CRM_Financial_BAO_PaymentProcessor::getPayment($paymentProcessorID, $mode);
 
 //CRM_Core_Error::debug_var('paymentProcessor', $paymentProcessor);
 
