@@ -189,7 +189,7 @@ class CRM_Core_Payment_OgoneIPN extends CRM_Core_Payment_BaseIPN {
       echo "Failure: Could not find contribution record for $contributionID<p>";
       exit();
     }
-    if (stristr($contribution->source, 'Online Event Registration')) {
+    if (stristr($contribution->source, ts('Online Event Registration'))) {
       $component = 'event';
     }
     $isTest = $contribution->is_test;
